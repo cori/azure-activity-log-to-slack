@@ -6,19 +6,20 @@ const express = require('express')
 const bp = require( 'body-parser' )
 const app = express()
 
-// we've started you off with Express, 
-// but feel free to use whatever libs or frameworks you'd like through `package.json`.
+var usefulStatuses = "[ 'Succeeded', "
 
-// http://expressjs.com/en/starter/static-files.html
 app.use(bp.json())
 
-// http://expressjs.com/en/starter/basic-routing.html
 app.get("/", (request, response) => {
   response.status(200).send( 'This is an API.' )
 })
 
 app.post("/", (request, response) => {
-  console.log( request.body )
+  console.log( request.body.data.context.activityLog.caller )
+  console.log( request.body.data.context.activityLog.operationName )
+  console.log( request.body.data.context.activityLog.resourceId )
+  console.log( request.body.data.context.activityLog.status )
+  console.log( request.body.data.context.activityLog.level )
 })
 
 // listen for requests :)
