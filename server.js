@@ -8,7 +8,7 @@ const req = require('request');
 
 const app = express()
 
-var interestingStatuses = [ 'Succeeded' ]
+var interestingStatuses = [ 'Succeeded', 'Failed' ]
 
 app.use(bp.json())
 
@@ -18,22 +18,38 @@ app.get("/", (request, response) => {
 
 app.post("/", (request, response) => {
   
-  var activityLog = request.body.data.context.activityLog
-  var message = `${activityLog.caller} requested ${getUsefulIdentifier( activityLog.operationName )} on ${getUsefulIdentifier( activityLog.resourceId )} with result ${activityLog.status}. This is a(n) ${activityLog.level} message.`
-  console.log(message);
-  if ( interestingStatuses.includes( activityLog.status ) ) {
+  try {
+    var activityLog = request.body.data.context.activityLog
 
-    req.post({'url': process.env.SLACK_WEBHOOK_URI, 'body': {'text': message}, json: true}, function( err, response, body ) {
-      if( err ) {
-        console.log( err )
-      }
-    })
+    var addtnlInfo = ''
+    if( activityLog.properties && activityLog.properties.statusMessage ) {
+      addtnlInfo = `(additional information: ${activityLog.properties.statusMessage})`
+    }
+
+    var message = `${activityLog.caller} requested ${getUsefulIdentifier( activityLog.operationName )} on ${getUsefulIdentifier( activityLog.resourceId )} with result ${activityLog.status} ${addtnlInfo}. This is a(n) ${activityLog.level} message.`
+    console.log(message);
+    if ( interestingStatuses.includes( activityLog.status ) ) {
+
+      req.post({'url': process.env.SLACK_WEBHOOK_URI, 'body': {'text': message}, json: true}, function( err, response, body ) {
+        if( err ) {
+          console.log( err )
+        }
+      })
+
+    } else {
+
+      console.log( activityLog.status )
+      // console.log( activityLog.body )
+
+    }
     
-  } else {
+    response.status( 200 ).send()
     
-    console.log( activityLog.status )
-    
-  }    
+  } catch( err ) {
+    console.log( err )
+    // console.log( request.body )
+    response.status( 500 ).send()
+  }
   
 })
 
