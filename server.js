@@ -19,11 +19,6 @@ app.get("/", (request, response) => {
 app.post("/", (request, response) => {
   
   var activityLog = request.body.data.context.activityLog
-  // console.log( activityLog.caller )
-  // console.log( activityLog.operationName )
-  // console.log( activityLog.resourceId )
-  // console.log( activityLog.status )
-  // console.log( activityLog.level )
   var message = `${activityLog.caller} requested ${getUsefulIdentifier( activityLog.operationName )} on ${getUsefulIdentifier( activityLog.resourceId )} with result ${activityLog.status}. This is a(n) ${activityLog.level} message.`
   console.log(message);
   if ( interestingStatuses.includes( activityLog.status ) ) {
@@ -32,8 +27,6 @@ app.post("/", (request, response) => {
       if( err ) {
         console.log( err )
       }
-     // console.log( response )
-     // console.log( body )
     })
     
   } else {
